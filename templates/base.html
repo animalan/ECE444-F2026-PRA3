@@ -18,12 +18,21 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Flasky</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">Flasky</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="/">Home</a></li>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                {% if session.get('email') %}
+                <li><a href="{{ url_for('chat') }}">Chatbot</a></li>
+                {% endif %}
             </ul>
+            {% if session.get('email') %}
+            <ul class="nav navbar-nav navbar-right">
+                <li><p class="navbar-text">Signed in as <strong>{{ session.get('name') }}</strong></p></li>
+                <li><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+            {% endif %}
         </div>
     </div>
 </div>

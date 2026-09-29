@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, redirect, url_for, flash
+from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
@@ -41,9 +41,38 @@ def index():
         session['name'] = form.name.data
         if "utoronto" in form.email.data:
             session['email'] = form.email.data
+            return redirect(url_for('chat'))
         else:
             session['email'] = None
             session['show_error'] = True
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
     error = session.pop('show_error', False)
     return render_template('index.html', form=form, name=session.get('name'), email=session.get('email'), error=error)
+
+
+@app.route('/chat', methods=['GET', 'POST'])
+def chat():
+    if request.method == 'POST':
+        message = request.json['message']
+        if "hello" in message.lower():
+            reply = "Hello!"
+        elif "my name is" in message.lower():
+            name = message[message.lower().find("my name is") + len("my name is"):].strip().rstrip(".!?")
+            session["name_memory"] = name
+            reply = f"Nice to meet you, {name}!"
+        elif "what is my name" in message.lower():
+            if "name_memory" in session:
+                reply = f"Your name is {session['name_memory']}."
+            else:
+                reply = "I don't know your name yet."
+        else:
+            reply = "I don't understand."
+        return {"reply": reply}
+
+    return render_template('chat.html')
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
