@@ -14,6 +14,7 @@ moment = Moment(app)
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
+    email = StringField('What is your UofT Email Address?', validators=[DataRequired()], render_kw={'type': 'email'})
     submit = SubmitField('Submit')
 
 
@@ -34,6 +35,15 @@ def index():
         old_name = session.get('name')
         if old_name is not None and old_name != form.name.data:
             flash('Looks like you have changed your name!')
+        old_email = session.get('email')
+        if old_email is not None and old_email != form.email.data:
+            flash('Looks like you have changed your email!')
         session['name'] = form.name.data
+        if "utoronto" in form.email.data:
+            session['email'] = form.email.data
+        else:
+            session['email'] = None
+            session['show_error'] = True
         return redirect(url_for('index'))
-    return render_template('index.html', form=form, name=session.get('name'))
+    error = session.pop('show_error', False)
+    return render_template('index.html', form=form, name=session.get('name'), email=session.get('email'), error=error)
